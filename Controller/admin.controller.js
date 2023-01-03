@@ -114,7 +114,7 @@ const staffSignup = (req, res) => {
                                     <p >Congratulations! Your account has been successfully created by an admin (${adminDetail.addedBy})</p>
                                     <p >With Adeyosola varieties, you are to manage, protect and secure the site from unrelevant effect</p>
                                     <b>This is the private key for your account respectively: ${privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE</i></b>
-                                    <p>Sign in through <a href='https://ecomfix.netlify.app/admin_login' style='text-decoration: none; color: #FF5722;'>link</a> to access your staff account
+                                    <p>Sign in through <a href='https://ecomfix.netlify.app/staff_login' style='text-decoration: none; color: #FF5722;'>link</a> to access your staff account
                                     Thank you!`,
                 };
                 transporter.sendMail(mailMessage, (err, result) => {
