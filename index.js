@@ -13,7 +13,7 @@ const { json } = require('express');
 app.use(bodyParser.urlencoded({extended:true, limit: '100mb'}))
 app.use(json({limit: '100mb'}))
 app.use(cors())
-
+app.use(express.static(__dirname + '/build'))
 mongoose.connect(URL, (err)=>{
     if(err){
         console.log(`mongoDB not connected`);
@@ -23,7 +23,7 @@ mongoose.connect(URL, (err)=>{
     }
 })
 app.get('/', (req, res)=>{
-    res.send(`It's reaponding`)
+    res.sendFile(__dirname + '/build/index.html')
 })
 app.use('/user', userRouter)
 app.use('/admin', adminRouter)

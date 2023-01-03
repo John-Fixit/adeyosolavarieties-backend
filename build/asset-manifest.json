@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/static/css/main.2d5a1528.css",
+    "main.js": "/static/js/main.85e404b8.js",
+    "static/js/787.536ded98.chunk.js": "/static/js/787.536ded98.chunk.js",
+    "static/media/bgImg5.png": "/static/media/bgImg5.e16e8d1c872e60b5e332.png",
+    "static/media/user.PNG": "/static/media/user.6a897e7e01bc2aa96f1e.PNG",
+    "static/media/1473159158_Christmas-card-for-this-wonderful-season.png": "/static/media/1473159158_Christmas-card-for-this-wonderful-season.9bfddd63916cfec27cf2.png",
+    "static/media/christmas.png": "/static/media/christmas.9bfddd63916cfec27cf2.png",
+    "static/media/shirt.png": "/static/media/shirt.cba6be90e7d7045640e1.png",
+    "static/media/business.png": "/static/media/business.ce9366a09fcf3d810913.png",
+    "static/media/bgImg2.jpg": "/static/media/bgImg2.2508681ef7bab68d7457.jpg",
+    "service-worker.js": "/service-worker.js",
+    "static/media/sticker.png": "/static/media/sticker.549115f7fc00e21ebdf2.png",
+    "static/media/bgImg3.jpg": "/static/media/bgImg3.8bb8ed899e0ee99e4e4a.jpg",
+    "static/media/printing.png": "/static/media/printing.6852a746b74c1a00c46a.png",
+    "static/media/bgImg1.jpg": "/static/media/bgImg1.9f910ad75cb864e7efac.jpg",
+    "static/media/AdeyosolaVar.jpg": "/static/media/AdeyosolaVar.7b77c161f33f7ef77fb9.jpg",
+    "index.html": "/index.html",
+    "main.2d5a1528.css.map": "/static/css/main.2d5a1528.css.map",
+    "main.85e404b8.js.map": "/static/js/main.85e404b8.js.map",
+    "787.536ded98.chunk.js.map": "/static/js/787.536ded98.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2d5a1528.css",
+    "static/js/main.85e404b8.js"
+  ]
+}
