@@ -43,6 +43,7 @@ adminSchema.methods.validatePassword = function (password, callback){
         }
     })
 }
+
 const adminModel = mongoose.model('admin_tb', adminSchema)
 const productModel = mongoose.model('products_tb', product)
 module.exports = {adminModel, productModel}
