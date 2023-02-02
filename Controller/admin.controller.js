@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const SECRET = process.env.JWT_SECRET;
 const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
+console.log(EMAIL)
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -30,48 +31,42 @@ const signup = (req, res) => {
   adminModel.findOne({ email: email }, (err, foundUser) => {
     if (err) {
       res.status(500).send({ message: `Internal server error`, status: false });
-      console.log(`error dey`);
     } else {
       if (foundUser) {
         res.send({ message: `This user already exist`, status: false });
       } else {
         const form = new adminModel(adminDetail);
-        form.save((err) => {
+        form.save((err, data) => {
           if (err) {
-            res.send({
-              message: `Network error user not yet registered`,
+            res.status(500).send({
+              message: `Network error! registeration not complete, please try again`,
               status: false,
             });
           } else {
-            adminModel.findOne({ email: email }, (err, thisAdmin) => {
-              if (err) {
-                res.send({ message: `An error occurred`, status: false });
-              } else {
-                const privateKey = thisAdmin.privateKey;
                 var mailMessage = {
                   from: EMAIL,
                   to: email,
                   subject: "Registration successfull!",
                   html: `<b class='card-title'>Dear ${fullname},</b>
                                     <p >Welcome to Adeyosola varieties admin account!</p>
-                                    <p >Congratulations! Your account has been successfully created by another admin (${adminDetail.addedBy})</p>
-                                    <p >With Adeyosola varieties, you are to manage, protect and secure the site from unrelevant effect</p>
-                                    <b>This is your private key and password for your account respectively: ${privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE</i></b>
-                                    <p>Sign in through <a href='https://ecomfix.netlify.app/admin_login' style='text-decoration: none; color: #FF5722;'>link</a> to access your staff account
+                                    <p >Congratulations! Your account has been successfully created by the Admin</p>
+                                    <b>This is the private key and password for your account respectively: ${data.privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE</i> Has it will be required to login other time</b>
+                                    <p>Sign in through <a href='https://ecomfix.netlify.app/admin_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
                                     Thank you!`,
                 };
                 transporter.sendMail(mailMessage, (err, result) => {
                   if (err) {
                     console.log(`Connection error`);
+                    res.status(500).send({
+                      message: "Unexpected error! check your connection"
+                    })
                   } else {
-                    res.send({
+                    res.status(200).send({
                       message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
                       status: true,
                     });
                   }
                 });
-              }
-            });
           }
         });
       }
@@ -83,7 +78,6 @@ const staffSignup = (req, res) => {
   const email = adminDetail.email;
   const password = adminDetail.password;
   const fullname = adminDetail.firstname + " " + adminDetail.lastname;
-  console.log(req.body);
   adminModel.findOne({ email: email }, (err, foundUser) => {
     if (err) {
       res.status(500).send({ message: `Internal server error`, status: false });
@@ -93,45 +87,39 @@ const staffSignup = (req, res) => {
         res.send({ message: `The email is already used!`, status: false });
       } else {
         const form = new adminModel(adminDetail);
-        form.save((err) => {
+        form.save((err, data) => {
           if (err) {
             res.send({
               message: `Network error user not yet registered`,
               status: false,
             });
           } else {
-            adminModel.findOne({ email: email }, (err, thisAdmin) => {
-              if (err) {
-                res.send({ message: `An error occurred`, status: false });
-              } else {
-                const privateKey = thisAdmin.privateKey;
                 var mailMessage = {
                   from: EMAIL,
                   to: email,
                   subject: "Registration successfull!",
                   html: `<b class='card-title'>Dear ${fullname},</b>
-                                    <p >Welcome to Adeyosola varieties staff account!</p>
-                                    <p >Congratulations! Your account has been successfully created by an admin (${adminDetail.addedBy})</p>
-                                    <p >With Adeyosola varieties, you are to manage, protect and secure the site from unrelevant effect</p>
-                                    <b>This is the private key for your account respectively: ${privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE</i></b>
-                                    <p>Sign in through <a href='https://ecomfix.netlify.app/staff_login' style='text-decoration: none; color: #FF5722;'>link</a> to access your staff account
+                  <p >Welcome to Adeyosola varieties admin account!</p>
+                  <p >Congratulations! Your account has been successfully created by the Admin</p>
+                                   
+                                    <b>This is the private key for your account: ${data.privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE</i> Has it will be required to login next time</b>
+                                    <p>Sign in through <a href='https://ecomfix.netlify.app/staff_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
                                     Thank you!`,
                 };
                 transporter.sendMail(mailMessage, (err, result) => {
                   if (err) {
-                    console.log(`Connection error`);
-                    res.send({
+                    res.status(500).send({
                       message: `Connection error, please check you connection`,
+                      status: false
                     });
                   } else {
-                    res.send({
+                    res.status(200).send({
                       message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
                       status: true,
                     });
                   }
                 });
-              }
-            });
+           
           }
         });
       }
@@ -157,7 +145,7 @@ const signin = (req, res) => {
       } else {
         thisUser.validatePassword(password, (err, result) => {
           if (err) {
-            res.send({
+            res.status(500).send({
               message: `Internal server error, please check your connection`,
               status: false,
             });
@@ -175,7 +163,7 @@ const signin = (req, res) => {
               }
               if (thisUser.privateKey != privateKey) {
                 res.send({
-                  message: `Your private key is not correct!!!`,
+                  message: `Your private key entered is not correct!!!`,
                   status: false,
                 });
               }
