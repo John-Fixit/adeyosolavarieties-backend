@@ -6,7 +6,6 @@ const nodemailer = require("nodemailer");
 const SECRET = process.env.JWT_SECRET;
 const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
-console.log(EMAIL)
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
   api_key: process.env.API_KEY,
@@ -14,7 +13,7 @@ cloudinary.config({
 });
 
 var transporter = nodemailer.createTransport({
-  service: "smtp@gmail.com",
+  service: "smtp@gmail.com", 
   port: 587,
   secure: false,
   requireTLS: true,
@@ -44,7 +43,7 @@ const signup = (req, res) => {
             });
           } else {
                 var mailMessage = {
-                  from: EMAIL,
+                  from: "noreply",
                   to: email,
                   subject: "Registration successfull!",
                   html: `<b class='card-title'>Dear ${fullname},</b>
@@ -56,9 +55,10 @@ const signup = (req, res) => {
                 };
                 transporter.sendMail(mailMessage, (err, result) => {
                   if (err) {
-                    console.log(`Connection error`);
+                    console.log(err)
                     res.status(500).send({
-                      message: "Unexpected error! check your connection"
+                      message: "Unexpected error! please check your connection",
+                      status: false
                     })
                   } else {
                     res.status(200).send({
@@ -376,7 +376,6 @@ const editProduct = (req, res) => {
     },
     (err, result) => {
       if (err) {
-        console.log(err);
         res.send({
           message: `Error occurred, please check your connection!`,
           status: false,
@@ -397,6 +396,18 @@ const deleteAccount = (req, res) => {
     }
   });
 };
+
+const adminProfile=(req, res)=>{
+  const id = req.query.qry
+  adminModel.findOne({id}, function(err, result){
+      if(err){
+        res.status(500).send({message: "Internal Server Error", status: false})
+      }
+      else{
+        res.status(200).send({result, status: true})
+      }
+  })
+}
 module.exports = {
   signup,
   signin,
@@ -411,4 +422,5 @@ module.exports = {
   staffSignin,
   staffSignup,
   editProduct,
+  adminProfile
 };
