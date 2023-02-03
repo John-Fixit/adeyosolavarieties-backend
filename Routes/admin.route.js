@@ -15,4 +15,6 @@ adminRouter.post('/uploadProfilePhoto', adminController.profilePhoto)
 adminRouter.post('/deleteAccount', adminController.deleteAccount)
 adminRouter.post('/staffSignin', adminController.staffSignin)
 adminRouter.get('/', adminController.adminProfile)
+adminRouter.post('/forgotPsw', adminController.forgotPsw)
+adminRouter.get('/resetPsw', adminController.resetPsw)
 module.exports = adminRouter

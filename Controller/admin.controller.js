@@ -13,7 +13,7 @@ cloudinary.config({
 });
 
 var transporter = nodemailer.createTransport({
-  service: "smtp@gmail.com", 
+  service: "smtp@gmail.com",
   port: 587,
   secure: false,
   requireTLS: true,
@@ -42,31 +42,31 @@ const signup = (req, res) => {
               status: false,
             });
           } else {
-                var mailMessage = {
-                  from: "noreply",
-                  to: email,
-                  subject: "Registration successfull!",
-                  html: `<b class='card-title'>Dear ${fullname},</b>
+            var mailMessage = {
+              from: "noreply",
+              to: email,
+              subject: "Registration successfull!",
+              html: `<b class='card-title'>Dear ${fullname},</b>
                                     <p >Welcome to Adeyosola varieties admin account!</p>
                                     <p >Congratulations! Your account has been successfully created by the Admin</p>
                                     <b>This is the private key and password for your account respectively: ${data.privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE</i> Has it will be required to login other time</b>
                                     <p>Sign in through <a href='https://ecomfix.netlify.app/admin_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
                                     Thank you!`,
-                };
-                transporter.sendMail(mailMessage, (err, result) => {
-                  if (err) {
-                    console.log(err)
-                    res.status(500).send({
-                      message: "Unexpected error! please check your connection",
-                      status: false
-                    })
-                  } else {
-                    res.status(200).send({
-                      message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
-                      status: true,
-                    });
-                  }
+            };
+            transporter.sendMail(mailMessage, (err, result) => {
+              if (err) {
+                console.log(err);
+                res.status(500).send({
+                  message: "Unexpected error! please check your connection",
+                  status: false,
                 });
+              } else {
+                res.status(200).send({
+                  message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
+                  status: true,
+                });
+              }
+            });
           }
         });
       }
@@ -94,32 +94,31 @@ const staffSignup = (req, res) => {
               status: false,
             });
           } else {
-                var mailMessage = {
-                  from: EMAIL,
-                  to: email,
-                  subject: "Registration successfull!",
-                  html: `<b class='card-title'>Dear ${fullname},</b>
+            var mailMessage = {
+              from: EMAIL,
+              to: email,
+              subject: "Registration successfull!",
+              html: `<b class='card-title'>Dear ${fullname},</b>
                   <p >Welcome to Adeyosola varieties admin account!</p>
                   <p >Congratulations! Your account has been successfully created by the Admin</p>
                                    
                                     <b>This is the private key for your account: ${data.privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE</i> Has it will be required to login next time</b>
                                     <p>Sign in through <a href='https://ecomfix.netlify.app/staff_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
                                     Thank you!`,
-                };
-                transporter.sendMail(mailMessage, (err, result) => {
-                  if (err) {
-                    res.status(500).send({
-                      message: `Connection error, please check you connection`,
-                      status: false
-                    });
-                  } else {
-                    res.status(200).send({
-                      message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
-                      status: true,
-                    });
-                  }
+            };
+            transporter.sendMail(mailMessage, (err, result) => {
+              if (err) {
+                res.status(500).send({
+                  message: `Connection error, please check you connection`,
+                  status: false,
                 });
-           
+              } else {
+                res.status(200).send({
+                  message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
+                  status: true,
+                });
+              }
+            });
           }
         });
       }
@@ -195,23 +194,21 @@ const staffSignin = (req, res) => {
           status: false,
         });
       } else {
-          if (thisUser.privateKey == privateKey) {
-            const admintoken = jwt.sign({ email }, SECRET, {
-                expiresIn: "2h",
-              });
-              res.send({
-                message: `user authenticated`,
-                status: true,
-                admintoken,
-              });
-          }
-          else{
-            res.send({
-                message: `The private key entered is incorrect !!!`,
-                status: false,
-              });
-          }
-         
+        if (thisUser.privateKey == privateKey) {
+          const admintoken = jwt.sign({ email }, SECRET, {
+            expiresIn: "2h",
+          });
+          res.send({
+            message: `user authenticated`,
+            status: true,
+            admintoken,
+          });
+        } else {
+          res.send({
+            message: `The private key entered is incorrect !!!`,
+            status: false,
+          });
+        }
       }
     }
   });
@@ -397,16 +394,92 @@ const deleteAccount = (req, res) => {
   });
 };
 
-const adminProfile=(req, res)=>{
-  const id = req.query.qry
-  adminModel.findOne({id}, function(err, result){
-      if(err){
-        res.status(500).send({message: "Internal Server Error", status: false})
+const adminProfile = (req, res) => {
+  const id = req.query.qry;
+  adminModel.findOne({ id }, function (err, result) {
+    if (err) {
+      res.status(500).send({ message: "Internal Server Error", status: false });
+    } else {
+      res.status(200).send({ result, status: true });
+    }
+  });
+};
+
+const forgotPsw = (req, res) => {
+  const { email } = req.body;
+  adminModel.findOne({ email }, (err, data) => {
+    if (err) {
+      res.status(500).send({ message: "Internal server error", status: false });
+    } else {
+      if (data) {
+        console.log(data);
+        let resetLinkToken = jwt.sign(
+          { _id: data._id },
+          process.env.RESET_CODE_KEY,
+          { expiresIn: "20m" }
+        );
+        let mailMessage = {
+          from: EMAIL,
+          to: email,
+          subject: "Account Password Reset Link",
+          html: `<h2>Please click on the given link to reset your password</h2>
+          <p>${process.env.CLIENT_URL}/reset_password/${resetLinkToken}</p>
+          `,
+        };
+
+        data.updateOne({ resetPswLink: resetLinkToken }, (err, updatedData) => {
+          if (err) {
+            res
+              .status(500)
+              .send({ message: "Reset password link error", status: false });
+          } else {
+            transporter.sendMail(mailMessage, (err, msgRes) => {
+              if (err) {
+                res
+                  .status(500)
+                  .send({
+                    message:
+                      "Unexpected error! please check your connection and try again",
+                    status: false,
+                  });
+              } else {
+                res
+                  .status(200)
+                  .send({
+                    message:
+                      "Verification link to reset your password has been sent to the email entered, Kindly follow the instructions, the link will expire in the next 20 minutes",
+                    status: true,
+                  });
+              }
+            });
+          }
+        });
+      } else {
+        res
+          .status(200)
+          .send({
+            message: "The email entered is not found or not correct",
+            status: false,
+          });
       }
-      else{
-        res.status(200).send({result, status: true})
-      }
-  })
+    }
+  });
+};
+
+const resetPsw =(req, res)=>{
+  const {resetLink, password} = req.query
+  if(resetLink){
+    jwt.verify({resetLink}, process.env.RESET_CODE_KEY, (err, decodedResult)=>{
+        if(err){
+          res.status(200).send({message: "Incorrect or expired verification link", status: false})
+        }
+        else{
+          console.log(decodedResult)
+          
+        }
+    })
+  }
+  console.log(req.query)
 }
 module.exports = {
   signup,
@@ -422,5 +495,7 @@ module.exports = {
   staffSignin,
   staffSignup,
   editProduct,
-  adminProfile
+  adminProfile,
+  forgotPsw,
+  resetPsw
 };

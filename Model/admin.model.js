@@ -11,7 +11,11 @@ const adminSchema = new mongoose.Schema({
     password: String,
     privateKey: String,
     role: String,
-    addedBy: String
+    addedBy: String,
+    resetPswLink: {
+        type: String,
+        default: ""
+    }
 })
 const product = new mongoose.Schema({
     image: String,
