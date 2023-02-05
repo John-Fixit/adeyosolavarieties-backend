@@ -17,4 +17,5 @@ adminRouter.post('/staffSignin', adminController.staffSignin)
 adminRouter.get('/', adminController.adminProfile)
 adminRouter.post('/forgotPsw', adminController.forgotPsw)
 adminRouter.get('/resetPsw', adminController.resetPsw)
+adminRouter.get('/forgotPryKey', adminController.forgotPryKey)
 module.exports = adminRouter

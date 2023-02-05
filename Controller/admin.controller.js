@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const _ = require("lodash")
 const SECRET = process.env.JWT_SECRET;
 const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
@@ -267,8 +268,6 @@ const products = (req, res) => {
   const rating = req.body.rate;
   const price = req.body.price;
   const productImage = req.body.convertedFile;
-  const fullname = req.body.fullname;
-  const email = req.body.email;
   cloudinary.v2.uploader.upload(productImage, (err, result) => {
     if (err) {
       res.send({ message: `Network problem, unable to upload` });
@@ -291,23 +290,17 @@ const products = (req, res) => {
   });
 };
 const saveProfile = (req, res) => {
-  const firstname = req.body.firstname;
-  const lastname = req.body.lastname;
-  const email = req.body.email;
-  const username = req.body.username;
-  const adminId = req.body.adminId;
-  const contact = req.body.contact;
-  const gender = req.body.gender;
+  const {firstname, lastname, email, username, adminId, contact, gender} = req.body
   adminModel.findOneAndUpdate(
     { _id: adminId },
     {
       $set: {
-        firstname: firstname,
-        lastname: lastname,
-        email: email,
-        username: username,
-        contact: contact,
-        gender: gender,
+        firstname,
+        lastname,
+        email,
+        username,
+        contact,
+        gender,
       },
     },
     (err, result) => {
@@ -396,7 +389,7 @@ const deleteAccount = (req, res) => {
 
 const adminProfile = (req, res) => {
   const id = req.query.qry;
-  adminModel.findOne({ id }, function (err, result) {
+  adminModel.findOne({ _id: id }, function (err, result) {
     if (err) {
       res.status(500).send({ message: "Internal Server Error", status: false });
     } else {
@@ -412,7 +405,6 @@ const forgotPsw = (req, res) => {
       res.status(500).send({ message: "Internal server error", status: false });
     } else {
       if (data) {
-        console.log(data);
         let resetLinkToken = jwt.sign(
           { _id: data._id },
           process.env.RESET_CODE_KEY,
@@ -468,18 +460,60 @@ const forgotPsw = (req, res) => {
 
 const resetPsw =(req, res)=>{
   const {resetLink, password} = req.query
+  console.log(resetLink)
   if(resetLink){
-    jwt.verify({resetLink}, process.env.RESET_CODE_KEY, (err, decodedResult)=>{
+    jwt.verify(resetLink, process.env.RESET_CODE_KEY, (err, decodedResult)=>{
         if(err){
+          console.log(err)
           res.status(200).send({message: "Incorrect or expired verification link", status: false})
         }
         else{
-          console.log(decodedResult)
-          
+          adminModel.findOne({resetLink}, (err, data)=>{
+              if(err) res.status(500).send({message: "Unexpected error!m please check your connection", status: false})
+              else{
+                  const crdObj = {password: password, resetPswLink: ""}
+                  const user = _.extend(data,  crdObj)
+                  user.save((err)=>{
+                      if(err)res.status(400).json({message: `Internal server error, please check your connection`, status: false})
+                      else res.status(200).json({message: `Your password has been updated successfully, proceed to login with your new password ${process.env.CLIENT_URL}/admin_login`, status: true})
+                  })
+              }
+          })
+
         }
     })
   }
-  console.log(req.query)
+  else{
+    res.status(200).json({message: "No reset link not found! Please click on the link sent to your email", status: false})
+  }
+}
+
+const forgotPryKey=(req, res)=>{
+    const {email} = req.query
+    adminModel.findOne({email}, (err, data)=>{
+        if(err){
+          res.status(500).json({message: "Internal server error, please try again", status: false})
+        }
+        else{
+          let mailMessage = {
+            from : "Adeyosola",
+            to: email,
+            subject: "Private Key Recovery",
+            html: ` <b>This is your private key for your account: ${data.privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE!!!</i></b>`
+          }
+          data?
+            transporter.sendMail(mailMessage, (err, msgRes)=>{
+                if(err){
+                    res.status(500).json({message: "Unexpected error, please check your connection and try again", status: false})
+                }
+                else{
+                  res.status(200).json({message: "Your private key had been sent to yoru email! check it and sign-in!", status: true})
+                }
+            })
+          :
+            res.status(200).json({message: "The email address provided does not exist on our list", status: false})
+        }
+    })
 }
 module.exports = {
   signup,
@@ -497,5 +531,6 @@ module.exports = {
   editProduct,
   adminProfile,
   forgotPsw,
-  resetPsw
+  resetPsw,
+  forgotPryKey
 };

@@ -37,7 +37,6 @@ const product = (req, res) => {
 }
 
 const contactMessage = (req, res) => {
-    console.log(req.body);
     const mailToSend = {
         from: req.body.senderEmail,
         to: EMAIL,
@@ -46,10 +45,10 @@ const contactMessage = (req, res) => {
     }
     transporter.sendMail(mailToSend, (err, info) => {
         if (err) {
-            console.log(err);
-            res.send({ message: `Network error please check your connection, your message will be send automatically`, status: false })
+            if(err.code == "")
+            res.send({ message: `Network error please check your connection`, status: false })
         } else {
-            res.send({ message: `Message sent successfully`, status: true })
+            res.status(200).send({ message: `Message sent successfully`, status: true })
         }
     })
 }
