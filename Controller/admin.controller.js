@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const cloudinary = require("cloudinary");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
+const bcrypt = require("bcryptjs")
 const _ = require("lodash")
 const SECRET = process.env.JWT_SECRET;
 const EMAIL = process.env.EMAIL;
@@ -24,10 +25,7 @@ var transporter = nodemailer.createTransport({
   },
 });
 const signup = (req, res) => {
-  const adminDetail = req.body;
-  const email = adminDetail.email;
-  const password = adminDetail.password;
-  const fullname = adminDetail.firstname + " " + adminDetail.lastname;
+  const {email, password} = req.body
   adminModel.findOne({ email: email }, (err, foundUser) => {
     if (err) {
       res.status(500).send({ message: `Internal server error`, status: false });
@@ -35,7 +33,8 @@ const signup = (req, res) => {
       if (foundUser) {
         res.send({ message: `This user already exist`, status: false });
       } else {
-        const form = new adminModel(adminDetail);
+        
+        const form = new adminModel(req.body);
         form.save((err, data) => {
           if (err) {
             res.status(500).send({
@@ -43,20 +42,20 @@ const signup = (req, res) => {
               status: false,
             });
           } else {
+            const {firstname, lastname, email, privateKey} = data
             var mailMessage = {
               from: "noreply",
               to: email,
               subject: "Registration successfull!",
-              html: `<b class='card-title'>Dear ${fullname},</b>
+              html: `<b class='card-title'>Dear ${firstname + " " + lastname},</b>
                                     <p >Welcome to Adeyosola varieties admin account!</p>
                                     <p >Congratulations! Your account has been successfully created by the Admin</p>
-                                    <b>This is the private key and password for your account respectively: ${data.privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE</i> Has it will be required to login other time</b>
-                                    <p>Sign in through <a href='https://ecomfix.netlify.app/admin_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
+                                    <b>This is the private key and password for your account respectively: ${privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE( You can change your password anytime!)</i> Has it will be required to login other time</b>
+                                    <p>Sign in through <a href='${process.env.CLIENT_URL}/admin_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
                                     Thank you!`,
             };
             transporter.sendMail(mailMessage, (err, result) => {
               if (err) {
-                console.log(err);
                 res.status(500).send({
                   message: "Unexpected error! please check your connection",
                   status: false,
@@ -82,7 +81,6 @@ const staffSignup = (req, res) => {
   adminModel.findOne({ email: email }, (err, foundUser) => {
     if (err) {
       res.status(500).send({ message: `Internal server error`, status: false });
-      console.log(`error dey`);
     } else {
       if (foundUser) {
         res.send({ message: `The email is already used!`, status: false });
@@ -460,11 +458,9 @@ const forgotPsw = (req, res) => {
 
 const resetPsw =(req, res)=>{
   const {resetLink, password} = req.query
-  console.log(resetLink)
   if(resetLink){
     jwt.verify(resetLink, process.env.RESET_CODE_KEY, (err, decodedResult)=>{
         if(err){
-          console.log(err)
           res.status(200).send({message: "Incorrect or expired verification link", status: false})
         }
         else{
