@@ -32,7 +32,6 @@ adminSchema.pre('save', function(next){
         if(err){
             console.log(`there is an error in the conversion`);
         }else{
-            // bcrypt.hash
             this.password = hashedPassword
             this.privateKey = roundNum
             next()

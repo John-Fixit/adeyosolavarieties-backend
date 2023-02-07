@@ -124,7 +124,7 @@ const staffSignup = (req, res) => {
 };
 const signin = (req, res) => {
   const {password, email, privateKey} = req.body
-  adminModel.findOne({ email: email }, (err, thisUser) => {
+  adminModel.findOne({ email }, (err, thisUser) => {
     if (err) {
       res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
         messsage: `Network error! please check your connection`,
