@@ -4,7 +4,7 @@ const cloudinary = require("cloudinary");
 require("dotenv").config();
 const nodemailer = require("nodemailer");
 const _ = require("lodash")
-
+const HttpStatusCode = require("http-status-codes")
 const SECRET = process.env.JWT_SECRET;
 const EMAIL = process.env.EMAIL;
 const PASSWORD = process.env.PASSWORD;
@@ -25,59 +25,56 @@ var transporter = nodemailer.createTransport({
   },
 });
 const signup = (req, res) => {
-  // const {email, password} = req.body
-  // adminModel.findOne({ email: email }, (err, foundUser) => {
-  //   if (err) {
-  //     res.status(500).send({ message: `Internal server error`, status: false });
-  //   } else {
-  //     if (foundUser) {
-  //       res.send({ message: `This user already exist`, status: false });
-  //     } else {
+  const {email, password} = req.body
+  adminModel.findOne({ email: email }, (err, foundUser) => {
+    if (err) {
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ message: `Internal server error`, status: false });
+    } else {
+      if (foundUser) {
+        res.status(HttpStatusCode.OK).send({ message: `This user already exist`, status: false });
+      } else {
         
-  //       const form = new adminModel(req.body);
-  //       form.save((err, data) => {
-  //         if (err) {
-  //           res.status(500).send({
-  //             message: `Network error! registeration not complete, please try again`,
-  //             status: false,
-  //           });
-  //         } else {
-  //           const {firstname, lastname, email, privateKey} = data
-  //           var mailMessage = {
-  //             from: "noreply",
-  //             to: email,
-  //             subject: "Registration successfull!",
-  //             html: `<b class='card-title'>Dear ${firstname + " " + lastname},</b>
-  //                                   <p >Welcome to Adeyosola varieties admin account!</p>
-  //                                   <p >Congratulations! Your account has been successfully created by the Admin</p>
-  //                                   <b>This is the private key and password for your account respectively: ${privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE( You can change your password anytime!)</i> Has it will be required to login other time</b>
-  //                                   <p>Sign in through <a href='${process.env.CLIENT_URL}/admin_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
-  //                                   Thank you!`,
-  //           };
-  //           transporter.sendMail(mailMessage, (err, result) => {
-  //             if (err) {
-  //               res.status(500).send({
-  //                 message: "Unexpected error! please check your connection",
-  //                 status: false,
-  //               });
-  //             } else {
-  //               res.status(200).send({
-  //                 message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
-  //                 status: true,
-  //               });
-  //             }
-  //           });
-  //         }
-  //       });
-  //     }
-  //   }
-  // });
+        const form = new adminModel(req.body);
+        form.save((err, data) => {
+          if (err) {
+            res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
+              message: `Network error! registeration not complete, please try again`,
+              status: false,
+            });
+          } else {
+            const {firstname, lastname, email, privateKey} = data
+            var mailMessage = {
+              from: "noreply",
+              to: email,
+              subject: "Registration successfull!",
+              html: `<b class='card-title'>Dear ${firstname + " " + lastname},</b>
+                                    <p >Welcome to Adeyosola varieties admin account!</p>
+                                    <p >Congratulations! Your account has been successfully created by the Admin</p>
+                                    <b>This is the private key and password for your account respectively: ${privateKey}, ${password}, <i style="color: red;">DO NOT SHARE THIS WITH ANYONE( You can change your password anytime!)</i> Has it will be required to login other time</b>
+                                    <p>Sign in through <a href='${process.env.CLIENT_URL}/admin_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
+                                    Thank you!`,
+            };
+            transporter.sendMail(mailMessage, (err, result) => {
+              if (err) {
+                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
+                  message: "Unexpected error! please check your connection",
+                  status: false,
+                });
+              } else {
+                res.status(HttpStatusCode.OK).send({
+                  message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
+                  status: true,
+                });
+              }
+            });
+          }
+        });
+      }
+    }
+  });
 };
 const staffSignup = (req, res) => {
-  const adminDetail = req.body;
-  const email = adminDetail.email;
-  const password = adminDetail.password;
-  const fullname = adminDetail.firstname + " " + adminDetail.lastname;
+  const {email} = req.body
   adminModel.findOne({ email: email }, (err, foundUser) => {
     if (err) {
       res.status(500).send({ message: `Internal server error`, status: false });
@@ -85,7 +82,7 @@ const staffSignup = (req, res) => {
       if (foundUser) {
         res.send({ message: `The email is already used!`, status: false });
       } else {
-        const form = new adminModel(adminDetail);
+        const form = new adminModel(req.body);
         form.save((err, data) => {
           if (err) {
             res.send({
@@ -93,26 +90,27 @@ const staffSignup = (req, res) => {
               status: false,
             });
           } else {
+            const {firstname, lastname, email, privateKey} = data
             var mailMessage = {
               from: EMAIL,
               to: email,
               subject: "Registration successfull!",
-              html: `<b class='card-title'>Dear ${fullname},</b>
+              html: `<b class='card-title'>Dear ${firstname + " " + lastname},</b>
                   <p >Welcome to Adeyosola varieties admin account!</p>
                   <p >Congratulations! Your account has been successfully created by the Admin</p>
                                    
-                                    <b>This is the private key for your account: ${data.privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE</i> Has it will be required to login next time</b>
-                                    <p>Sign in through <a href='https://ecomfix.netlify.app/staff_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
+                                    <b>This is the private key for your account: ${privateKey} <i style="color: red;">DO NOT SHARE YOUR PRIVATE KEY WITH ANYONE</i> Has it will be required to login next time</b>
+                                    <p>Sign in through <a href='${process.env.CLIENT_URL}/staff_login' style='text-decoration: none; color: #FF5722;'>LINK</a> to access your account dashboard
                                     Thank you!`,
             };
             transporter.sendMail(mailMessage, (err, result) => {
               if (err) {
-                res.status(500).send({
+                res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
                   message: `Connection error, please check you connection`,
                   status: false,
                 });
               } else {
-                res.status(200).send({
+                res.status(HttpStatusCode.OK).send({
                   message: `Registration successfull, Please login to the Gmail account ${email} for your private admin key.`,
                   status: true,
                 });
@@ -125,18 +123,16 @@ const staffSignup = (req, res) => {
   });
 };
 const signin = (req, res) => {
-  const password = req.body.password;
-  const email = req.body.email;
-  const privateKey = req.body.privateKey;
+  const {password, email, privateKey} = req.body
   adminModel.findOne({ email: email }, (err, thisUser) => {
     if (err) {
-      res.send({
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
         messsage: `Network error! please check your connection`,
         status: false,
       });
     } else {
       if (!thisUser) {
-        res.send({
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
           message: `No account of this details with me !!!`,
           status: false,
         });
@@ -178,17 +174,17 @@ const signin = (req, res) => {
   });
 };
 const staffSignin = (req, res) => {
-  const privateKey = req.body.password;
-  const email = req.body.email;
+
+  const {privateKey, email} = req.body
   adminModel.findOne({ email: email }, (err, thisUser) => {
     if (err) {
-      res.send({
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({
         messsage: `Network error! please check your connection`,
         status: false,
       });
     } else {
       if (!thisUser) {
-        res.send({
+        res.status(HttpStatusCode.OK).send({
           message: `No account of this details with us !!!`,
           status: false,
         });
@@ -197,13 +193,13 @@ const staffSignin = (req, res) => {
           const admintoken = jwt.sign({ email }, SECRET, {
             expiresIn: "2h",
           });
-          res.send({
+          res.status(HttpStatusCode.OK).send({
             message: `user authenticated`,
             status: true,
             admintoken,
           });
         } else {
-          res.send({
+          res.status(HttpStatusCode.OK).send({
             message: `The private key entered is incorrect !!!`,
             status: false,
           });
@@ -262,11 +258,8 @@ const deleteStaff = (req, res) => {
 };
 
 const products = (req, res) => {
-  const title = req.body.title;
-  const rating = req.body.rate;
-  const price = req.body.price;
-  const productImage = req.body.convertedFile;
-  cloudinary.v2.uploader.upload(productImage, (err, result) => {
+  const {title, rating, price, convertedFile} = req.body
+  cloudinary.v2.uploader.upload(convertedFile, (err, result) => {
     if (err) {
       res.send({ message: `Network problem, unable to upload` });
     } else {
@@ -274,15 +267,13 @@ const products = (req, res) => {
       const productDetail = { image, title, rating, price };
       const form = new productModel(productDetail);
       form.save((err) => {
-        if (err) {
-          res.send({ message: `Internal server error`, status: false });
-        } else {
-          res.send({
+         err?
+          res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ message: `Internal server error`, status: false }):
+          res.status(HttpStatusCode.OK).send({
             productDetail,
             message: `Product uploaded successfully`,
             status: true,
           });
-        }
       });
     }
   });
@@ -303,17 +294,16 @@ const saveProfile = (req, res) => {
     },
     (err, result) => {
       if (err) {
-        res.send({ message: `Internal server error`, status: false });
+        res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).send({ message: `Internal server error`, status: false });
       } else {
-        res.send({ message: `Profile Edited successfully`, status: true });
+        res.status(HttpStatusCode.OK).send({ message: `Profile Edited successfully`, status: true });
       }
     }
   );
 };
 const profilePhoto = (req, res) => {
-  const myFile = req.body.convertedFile;
-  const adminId = req.body.adminId;
-  cloudinary.v2.uploader.upload(myFile, (err, uploadedFile) => {
+  const {convertedFile, adminId} = req.body
+  cloudinary.v2.uploader.upload(convertedFile, (err, uploadedFile) => {
     if (err) {
       res.send({
         message: `Internal server error, image could'nt uploaded!`,
@@ -363,14 +353,12 @@ const editProduct = (req, res) => {
       },
     },
     (err, result) => {
-      if (err) {
+      err?
         res.send({
           message: `Error occurred, please check your connection!`,
           status: false,
-        });
-      } else {
+        }):
         res.send({ message: `Product Edited successfully`, status: true });
-      }
     }
   );
 };

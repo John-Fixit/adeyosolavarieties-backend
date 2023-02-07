@@ -1,6 +1,6 @@
 {
   "short_name": "Adeyosola Varieties",
-  "name": "Adeyosola Varieties website",
+  "name": "Adeyosola Varieties Web",
   "icons": [
     {
       "src": "AdeyosolaLogo.jpg",
@@ -20,6 +20,7 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
+  "theme_color": "#f37621",
   "background_color": "#ffffff"
 }
+

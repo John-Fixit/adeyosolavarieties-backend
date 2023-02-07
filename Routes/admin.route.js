@@ -1,6 +1,7 @@
 const express = require ('express')
 const adminRouter = express()
 const adminController = require('../Controller/admin.controller')
+const { products } = require('../Controller/products')
 adminRouter.post('/signup', adminController.signup)
 adminRouter.post('/staffSignup', adminController.staffSignup)
 adminRouter.post('/signin', adminController.signin)
