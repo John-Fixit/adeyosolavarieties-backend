@@ -459,7 +459,7 @@ const resetPsw =(req, res)=>{
                   const user = _.extend(data,  crdObj)
                   user.save((err)=>{
                       if(err)res.status(400).json({message: `Internal server error, please check your connection`, status: false})
-                      else res.status(200).json({message: `Your password has been updated successfully, proceed to login with your new password ${process.env.CLIENT_URL}/admin_login`, status: true})
+                      else res.status(200).json({message: `Your password has been updated successfully, proceed to login with your new password`, status: true})
                   })
               }
           })
