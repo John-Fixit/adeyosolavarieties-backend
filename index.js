@@ -22,6 +22,8 @@ mongoose.connect(URL, (err)=>{
     else{
         console.log(`MongoDB connected`);
     }
+}).catch((err)=>{
+    console.log(err)  
 })
 app.get('/', (req, res)=>{
     res.send("App is in active")
