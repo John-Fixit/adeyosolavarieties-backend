@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose')
-const nodemailer = require('nodemailer')
 require('dotenv').config()
 const PORT = process.env.PORT
 const URL = process.env.URL
@@ -15,12 +14,13 @@ app.use(json({limit: '100mb'}))
 app.use(cors())
 
 // app.use(express.static(__dirname + '/public'))
-mongoose.connect(URL, (err)=>{
-    if(err){
+mongoose.connect(URL, (err, conn_det)=>{
+    if(err){console.log(err)
+
         console.log(`mongoDB not connected`);
     }
     else{
-        console.log(`MongoDB connected`);
+        console.log(`MongoDB connected with host ${conn_det.host}`);
     }
 }).catch((err)=>{
     console.log(err)  

@@ -17,6 +17,7 @@ const adminSchema = new mongoose.Schema({
         default: ""
     }
 })
+
 const product = new mongoose.Schema({
     image: String,
     title: String,
@@ -30,6 +31,7 @@ let roundNum = Math.floor(Math.random()*1000000)
 adminSchema.pre('save', function(next){
     bcrypt.hash(this.password, saltRound, (err, hashedPassword)=>{
         if(err){
+            console.log(err)
             console.log(`there is an error in the conversion`);
         }else{
             this.password = hashedPassword
