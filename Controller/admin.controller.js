@@ -337,6 +337,7 @@ const deleteProduct = (req, res) => {
         status: false,
       });
     } else {
+        cloudinary.v2.uploader.destroy()
       res.send({ message: `Product deleted successfully`, status: true });
     }
   });
@@ -495,7 +496,7 @@ const forgotPryKey=(req, res)=>{
                     res.status(500).json({message: "Unexpected error, please check your connection and try again", status: false})
                 }
                 else{
-                  res.status(200).json({message: "Your private key had been sent to yoru email! check it and sign-in!", status: true})
+                  res.status(200).json({message: "Your private key had been sent to your email! check it and sign-in!", status: true})
                 }
             })
           :
