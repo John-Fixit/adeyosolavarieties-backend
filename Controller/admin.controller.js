@@ -397,14 +397,14 @@ const forgotPsw = (req, res) => {
           process.env.RESET_CODE_KEY,
           { expiresIn: "20m" }
         );
-        let fToken = resetLinkToken.replace(/\./g, "%")
+        let convertedToken = resetLinkToken.replace(/\./g, "%")
         // OR using this regex: resetToken.split(".").join("%")
         let mailMessage = {
           from: EMAIL,
           to: email,
           subject: "Account Password Reset Link",
           html: `<h2>Please click on the given link to reset your password</h2>
-          <p>${process.env.CLIENT_URL}/reset_password/${resetLinkToken}</p>
+          <p>${process.env.CLIENT_URL}/reset_password/${convertedToken}</p>
           `,
         };
 
