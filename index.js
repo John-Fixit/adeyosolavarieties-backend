@@ -20,7 +20,7 @@ mongoose.connect(URL, (err, conn_det)=>{
         console.log(`mongoDB not connected`);
     }
     else{
-        console.log(`MongoDB connected with host ${conn_det.host}`);
+        console.log(`MongoDB connected: host = ${conn_det.host}`);
     }
 }).catch((err)=>{
     console.log(err)  

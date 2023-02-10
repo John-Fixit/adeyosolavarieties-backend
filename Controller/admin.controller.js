@@ -384,6 +384,7 @@ const adminProfile = (req, res) => {
   });
 };
 
+
 const forgotPsw = (req, res) => {
   const { email } = req.body;
   adminModel.findOne({ email }, (err, data) => {
@@ -396,6 +397,8 @@ const forgotPsw = (req, res) => {
           process.env.RESET_CODE_KEY,
           { expiresIn: "20m" }
         );
+        let fToken = resetLinkToken.replace(/\./g, "%")
+        // OR using this regex: resetToken.split(".").join("%")
         let mailMessage = {
           from: EMAIL,
           to: email,
@@ -447,7 +450,8 @@ const forgotPsw = (req, res) => {
 const resetPsw =(req, res)=>{
   const {resetLink, password} = req.query
   if(resetLink){
-    jwt.verify(resetLink, process.env.RESET_CODE_KEY, (err, decodedResult)=>{
+    let convertedLink = resetLink.replace(/\%/g, ".")
+    jwt.verify(convertedLink, process.env.RESET_CODE_KEY, (err, decodedResult)=>{
         if(err){
           res.status(200).send({message: "Incorrect or expired verification link", status: false})
         }
