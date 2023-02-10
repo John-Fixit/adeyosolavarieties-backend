@@ -456,7 +456,7 @@ const resetPsw =(req, res)=>{
           res.status(200).send({message: "Incorrect or expired verification link", status: false})
         }
         else{
-          adminModel.findOne({resetLink}, (err, data)=>{
+          adminModel.findOne({convertedLink}, (err, data)=>{
               if(err) res.status(500).send({message: "Unexpected error!m please check your connection", status: false})
               else{
                   const crdObj = {password: password, resetPswLink: ""}
